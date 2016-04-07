@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.1.0" client="site" method="upgrade">
+    <name>BrainTree Sub-Merchant Onboarding</name>
+    <author>Jason Braswell</author>
+    <version>1.0.0</version>
+    <description>BrainTreePayments Sub-Merchant Onboarding</description>
+    <files>
+        <filename>mod_helloworld.xml</filename>
+        <filename module="mod_helloworld">mod_helloworld.php</filename>
+        <filename>index.html</filename>
+        <filename>helper.php</filename>
+		<filename>braintreeutils.php</filename>
+        <filename>tmpl/default.php</filename>
+        <filename>tmpl/index.html</filename>
+        <filename>js/main.js</filename>
+    </files>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field name="environment_mode" type="list" label="Environment"
+                    description="Environment Mode">
+                    <option value="SANDBOX">Sandbox</option>
+                    <option value="DEVELOPMENT">Development</option>
+                    <option value="PRODUCTION">Production</option>
+                </field>
+                <field name="master_merchant_id" type="text" size="200" label="Master Merchant ID" description=""></field>
+                <field name="public_key" type="text" size="200" label="Public Key" description=""></field>
+                <field name="private_key" type="text" size="200" label="Private Key" description=""></field>
+            </fieldset>
+        </fields>
+    </config>
+	
+</extension>
