@@ -5,11 +5,19 @@
 	
     class ModBTPOnboardingHelper
     {
-			// Accessible variables from module.php
+		// Accessible variables from mod_btp_onboarding.php
 		public static $environment = null;
 		public static $masterMerchantId = null;
 		public static $publicKey = null;
 		public static $privateKey = null;
+		private static $configuredBrainTree = false;
+		
+		private static function setupBrainTree() {
+			if (!$configuredBrainTree) {
+				BrainTreeUtils::configure($environment, $masterMerchantId, $publicKey, $privateKey);
+				$configuredBrainTree = true;
+			}
+		}
 		
 		// Array containg the expected form parameters and if they're required
 		private static $formParams = array(
@@ -33,7 +41,8 @@
 			"fundemail" => true,
 			"fundphone" => true,
 			"account" => true,
-			"routing" => true
+			"routing" => true,
+			"id" => false
 		);
 		
 		private static function getValidationErrors($reqParams) {
@@ -64,7 +73,6 @@
 			
 			// Validation errors?
 			if (count($validationErrors) == 0) {
-				// Add Merchant
 				echo json_encode(static::addMerchant($app->input));
 			} else {
 				// Return error message
@@ -76,20 +84,11 @@
 			$app->close();
         }
 		
-		private static function addMerchant($postParameters) {
-			$gateway = new BrainTreeGateway(
-				static::$environment,
-				static::$masterMerchantId,
-				static::$publicKey,
-				static::$privateKey);
-					/*$config->getString("environment_mode"),
-					$config->getString("master_merchant_id"),
-					$config->getString("public_key") ,
-					$config->getString("private_key"));*/
-			
-			return $gateway->test();
+		private static function addMerchant($params) {
+			static::setupBrainTree();
+			return BrainTreeUtils::addMerchant($params);
 		}
 		
-    }
+	}
 
 ?>

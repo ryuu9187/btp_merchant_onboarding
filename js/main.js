@@ -22,7 +22,9 @@ var formFields = [
 		fieldMeta("fundemail", "Email"),
 		fieldMeta("fundphone", "Phone #"),
 		fieldMeta("account", "Account #"),
-		fieldMeta("routing", "Routing #")]}
+		fieldMeta("routing", "Routing #")]},
+	{ "Merchant" : [
+		fieldMeta("id", "Merchant ID")]}
 ];
 
 function fieldMeta(value, name) {

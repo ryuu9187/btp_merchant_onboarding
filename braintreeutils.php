@@ -3,22 +3,65 @@
 	// Dependencies
 	require_once dirname(__FILE__) . '/lib/Braintree.php';
 	
-	class BrainTreeGateway {
+	class BrainTreeUtils {
 		
-		private $merchantID = null;
+		private $masterMerchantID = null;
 		
-		public function __construct($env, $merchantID, $publicKey, $privateKey) {
-			$this->configure($env, $merchantID, $publicKey, $privateKey);
-			$this->merchantID = $merchantID;
-		}
-		
-		private function configure($env, $merchantID, $publicKey, $privateKey) {
+		public static function configure($env, $masterMerchantID, $publicKey, $privateKey) {
 			Braintree_Configuration::environment($env);
 			Braintree_Configuration::merchantId($merchantID);
 			Braintree_Configuration::publicKey($publicKey);
 			Braintree_Configuration::privateKey($privateKey);
+			$this->$masterMerchantID = $masterMerchantID;
 		}
 
+		public static function addMerchant($params) {
+			$invidualParams = [
+				'firstName' => $params->get('firstname'),
+				'lastName' => $params->get('lastname'),
+				'email' => $params->get('email'),
+				'phone' => $params->get('phone'),
+				'dateOfBirth' => $params->get('dob'),
+				'address' => [
+					'streetAddress' => $params->get('street'),
+					'locality' => $params->get('city'),
+					'region' => $params->get('state'),
+					'postalCode' => $params->get('zip')
+				]
+			];
+			
+			$bizParams = [
+					'legalName' => $params->get('bizname'),
+					'dbaName' => $params->get('dba'),
+					'taxId' => $params->get('tax'),
+					'address' => [
+						'streetAddress' => $params->get('bizstreet'),
+						'locality' => $params->get('bizcity'),
+						'region' => $params->get('bizstate'),
+						'postalCode' => $params->get('bizzip')
+					]
+			];
+			
+			$fundParams = [
+				'descriptor' => $params->get('fundname'),
+				'destination' => Braintree_MerchantAccount::FUNDING_DESTINATION_BANK,
+				'email' => $params->get('fundemail'),
+				'mobilePhone' => $params->get('fundphone'),
+				'accountNumber' => $params->get('account'),
+				'routingNumber' => $params->get('routing')
+			];
+  
+			$merchantAccountParams = [
+				'individual' => $invidualParams,
+				'business' => $bizParams,
+				'funding' => $fundParams,
+				'tosAccepted' => true,
+				'masterMerchantAccountId' => static::$masterMerchantID,
+				'id' => $params->get('id')
+			];
+
+			return Braintree_MerchantAccount::create($merchantAccountParams);
+		}
 	}
 
 ?>
