@@ -3,7 +3,7 @@
 	// Dependencies
 	require_once dirname(__FILE__) . '/braintreeutils.php';
 	
-    class ModHelloWorldHelper
+    class ModBTPOnboardingHelper
     {
 			// Accessible variables from module.php
 		public static $environment = null;

@@ -5,7 +5,7 @@
     JHtml::_('jquery.framework', false);
     
     $document = JFactory::getDocument();
-    $document->addScript('/dev/modules/mod_helloworld/js/main.js');
+    $document->addScript('/dev/modules/mod_btp_onboarding/js/main.js');
 ?>
 
 <form id="createMerchantForm" class="form-validate form-horizontal well">

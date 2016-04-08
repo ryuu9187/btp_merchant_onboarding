@@ -82,7 +82,7 @@ function toggleReqMessage(fieldName, show) {
 function createMerchant() {
 	jQuery.ajax({
 		type: "POST",
-		url: "index.php?option=com_ajax&module=helloworld&method=create&format=json",
+		url: "index.php?option=com_ajax&module=btp_onboarding&method=create&format=json",
 		data: $form.serialize(),
 		success: function(response){
 			var json = JSON.parse(response);

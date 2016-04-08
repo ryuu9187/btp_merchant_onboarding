@@ -5,8 +5,8 @@
     <version>1.0.0</version>
     <description>BrainTreePayments Sub-Merchant Onboarding</description>
     <files>
-        <filename>mod_helloworld.xml</filename>
-        <filename module="mod_helloworld">mod_helloworld.php</filename>
+        <filename>mod_btp_onboarding.xml</filename>
+        <filename module="mod_btp_onboarding">mod_btp_onboarding.php</filename>
         <filename>index.html</filename>
         <filename>helper.php</filename>
         <filename>tmpl/default.php</filename>
