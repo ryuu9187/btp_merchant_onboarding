@@ -50,6 +50,14 @@ function createForm() {
 				
 				var $fieldContainer = jQuery("<div class='controls'></div>");
 				var $field = jQuery("<input type='text' name='" + fields[i].value + "'/>");
+				
+				// Prevent field from auto-submitting w/ enter button
+				$field.keydown(function(e) {
+					if(e.keyCode == 13) {
+						return false;
+					}
+				});
+				
 				$fieldContainer.append($field);
 				$fieldContainer.append(fields[i].$requiredEl); // Required message
 				
@@ -87,28 +95,32 @@ function createMerchant() {
 		url: "index.php?option=com_ajax&module=btp_onboarding&method=create&format=json",
 		data: $form.serialize(),
 		success: function(response){
-			var json = JSON.parse(response);
+			try {
+				var json = JSON.parse(response);
 			
-			if (json && json.success) {
-				alert("Merchant queued for creation");
-				console.log("Merchant queued for creation");
-				console.log(json);
-				// TODO: Clear validation errors + (clear fields?)
-			} else {
-				var errorObj = JSON.parse(json.message);
+				if (json && json.success) {
+					alert("Merchant queued for creation");
+					console.log("Merchant queued for creation");
+					console.log(json);
+					// TODO: Clear validation errors + (clear fields?)
+				} else {
+					var errorObj = JSON.parse(json.message);
 				
-				if (errorObj.validationErrors) {
-					var reqFields = errorObj.validationErrors.split(";");
-					for (var f in reqFields) {
-						reqFields[f] && toggleReqMessage(reqFields[f], true);
+					if (errorObj.validationErrors) {
+						var reqFields = errorObj.validationErrors.split(";");
+						for (var f in reqFields) {
+							reqFields[f] && toggleReqMessage(reqFields[f], true);
+						}
+					} else {
+						var errorMsg = "An unknown error occurred." + errorObj;
+						console.error(errorMsg);
+						alert(errorMsg);
 					}
-				} else if (errorObj.javaErrors) {
-					alert(errorObj.javaErrors);
 				}
-				
-				console.error(errorObj.validationErrors ||
-					errorObj.javaErrors ||
-					("An unknown error occurred." + errorObj));
+			} catch (ex) {
+				var errorMsg = response && response.message || ("An unknown error occurred: " + response);
+				console.error(errorMsg);
+				alert(errorMsg);
 			}
 		}
 	});
