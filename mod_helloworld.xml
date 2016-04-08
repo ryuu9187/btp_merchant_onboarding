@@ -9,10 +9,11 @@
         <filename module="mod_helloworld">mod_helloworld.php</filename>
         <filename>index.html</filename>
         <filename>helper.php</filename>
-		<filename>braintreeutils.php</filename>
         <filename>tmpl/default.php</filename>
         <filename>tmpl/index.html</filename>
-        <filename>js/main.js</filename>
+		<filename>braintreeutils.php</filename>
+		<folder>js</folder>
+		<folder>lib</folder>
     </files>
 
     <config>

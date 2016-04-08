@@ -1,9 +1,15 @@
 <?php
+	
 	// Dependencies
 	require_once dirname(__FILE__) . '/braintreeutils.php';
 	
     class ModHelloWorldHelper
     {
+			// Accessible variables from module.php
+		public static $environment = null;
+		public static $masterMerchantId = null;
+		public static $publicKey = null;
+		public static $privateKey = null;
 		
 		// Array containg the expected form parameters and if they're required
 		private static $formParams = array(
@@ -50,14 +56,18 @@
         // Default method is getAjax
         // Ajax methods must end in Ajax
         public static function createAjax($params) {
-			
-            // $config = static::getBrainTreeParams();
             $app = JFactory::getApplication();
-			$validationErrors = self::getValidationErrors($app->input);
+			$postParams = $app->input;
 			
+			// Validate request
+			$validationErrors = self::getValidationErrors($postParams);
+			
+			// Validation errors?
 			if (count($validationErrors) == 0) {
-				echo json_encode(BrainTreeUtils::test());
+				// Add Merchant
+				echo json_encode(static::addMerchant($app->input));
 			} else {
+				// Return error message
 				echo new JResponseJson(null,
 					JText::_("{ \"validationErrors\" : \"" . implode(";", $validationErrors) . "\"}"), true);
 			}
@@ -65,6 +75,20 @@
 			//close the $app
 			$app->close();
         }
+		
+		private static function addMerchant($postParameters) {
+			$gateway = new BrainTreeGateway(
+				static::$environment,
+				static::$masterMerchantId,
+				static::$publicKey,
+				static::$privateKey);
+					/*$config->getString("environment_mode"),
+					$config->getString("master_merchant_id"),
+					$config->getString("public_key") ,
+					$config->getString("private_key"));*/
+			
+			return $gateway->test();
+		}
 		
     }
 
