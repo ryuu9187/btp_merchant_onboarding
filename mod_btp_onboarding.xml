@@ -21,9 +21,9 @@
             <fieldset name="basic">
                 <field name="environment_mode" type="list" label="Environment"
                     description="Environment Mode">
-                    <option value="SANDBOX">Sandbox</option>
-                    <option value="DEVELOPMENT">Development</option>
-                    <option value="PRODUCTION">Production</option>
+                    <option value="sandbox">Sandbox</option>
+                    <option value="development">Development</option>
+                    <option value="production">Production</option>
                 </field>
                 <field name="master_merchant_id" type="text" size="200" label="Master Merchant ID" description=""></field>
                 <field name="public_key" type="text" size="200" label="Public Key" description=""></field>

@@ -5,18 +5,15 @@
 	
     class ModBTPOnboardingHelper
     {
-		// Accessible variables from mod_btp_onboarding.php
-		public static $environment = null;
-		public static $masterMerchantId = null;
-		public static $publicKey = null;
-		public static $privateKey = null;
-		private static $configuredBrainTree = false;
-		
 		private static function setupBrainTree() {
-			if (!$configuredBrainTree) {
-				BrainTreeUtils::configure($environment, $masterMerchantId, $publicKey, $privateKey);
-				$configuredBrainTree = true;
-			}
+			$module = JModuleHelper::getModule('mod_btp_onboarding');
+			$modParams = new JRegistry($module->params);
+
+			BrainTreeUtils::configure(
+				$modParams['environment_mode'],
+				$modParams['master_merchant_id'],
+				$modParams['public_key'],
+ 				$modParams['private_key']);
 		}
 		
 		// Array containg the expected form parameters and if they're required
@@ -73,7 +70,7 @@
 			
 			// Validation errors?
 			if (count($validationErrors) == 0) {
-				echo json_encode(static::addMerchant($app->input));
+				echo json_encode(static::addMerchant($postParams));
 			} else {
 				// Return error message
 				echo new JResponseJson(null,

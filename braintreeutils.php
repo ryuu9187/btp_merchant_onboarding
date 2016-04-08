@@ -4,15 +4,16 @@
 	require_once dirname(__FILE__) . '/lib/Braintree.php';
 	
 	class BrainTreeUtils {
-
+	
 		private static $masterMerchantID = null;
 		
 		public static function configure($env, $masterMerchantID, $publicKey, $privateKey) {
+			static::$masterMerchantID = $masterMerchantID;
+			
 			Braintree_Configuration::environment($env);
 			Braintree_Configuration::merchantId($masterMerchantID);
 			Braintree_Configuration::publicKey($publicKey);
 			Braintree_Configuration::privateKey($privateKey);
-			static::$masterMerchantID = $masterMerchantID;
 		}
 
 		public static function addMerchant($params) {
@@ -59,8 +60,12 @@
 				'masterMerchantAccountId' => static::$masterMerchantID,
 				'id' => $params->get('id')
 			];
-
-			return Braintree_MerchantAccount::create($merchantAccountParams);
+			
+			try {
+				return Braintree_MerchantAccount::create($merchantAccountParams);
+			} catch (Exception $ex) {
+				return "An error occured";
+			}
 		}
 	}
 
