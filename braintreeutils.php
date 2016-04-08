@@ -5,11 +5,14 @@
 	
 	class BrainTreeUtils {
 
+		private static $masterMerchantID = null;
+		
 		public static function configure($env, $masterMerchantID, $publicKey, $privateKey) {
 			Braintree_Configuration::environment($env);
 			Braintree_Configuration::merchantId($masterMerchantID);
 			Braintree_Configuration::publicKey($publicKey);
 			Braintree_Configuration::privateKey($privateKey);
+			static::$masterMerchantID = $masterMerchantID;
 		}
 
 		public static function addMerchant($params) {
