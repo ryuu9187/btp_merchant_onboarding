@@ -39,6 +39,7 @@
 			"fundphone" => true,
 			"account" => true,
 			"routing" => true,
+			"masterId" => true,
 			"id" => false
 		);
 		

@@ -24,7 +24,8 @@ var formFields = [
 		fieldMeta("account", "Account #"),
 		fieldMeta("routing", "Routing #")]},
 	{ "Merchant" : [
-		fieldMeta("id", "Merchant ID")]}
+		fieldMeta("masterId", "Master Merchant ID*"),
+		fieldMeta("id", "Merchant ID (optional)")]}
 ];
 
 function fieldMeta(value, name) {

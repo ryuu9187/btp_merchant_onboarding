@@ -57,7 +57,7 @@
 				'business' => $bizParams,
 				'funding' => $fundParams,
 				'tosAccepted' => true,
-				'masterMerchantAccountId' => 'flgctcompany',
+				'masterMerchantAccountId' => $params->get('masterId'),
 				'id' => $params->get('id')
 			];
 			
