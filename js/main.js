@@ -32,6 +32,7 @@ function fieldMeta(value, name) {
 	return {
 		name : name,
 		value : value,
+		$node : null,
 		$requiredEl : jQuery("<div style='display:none;width:50%;padding:2px 10px;' class='alert alert-error'>" + name + " is required</div>")
 	};
 }
@@ -51,6 +52,7 @@ function createForm() {
 				
 				var $fieldContainer = jQuery("<div class='controls'></div>");
 				var $field = jQuery("<input type='text' name='" + fields[i].value + "'/>");
+				fields[i].$node = $field;
 				
 				// Prevent field from auto-submitting w/ enter button
 				$field.keydown(function(e) {
@@ -85,12 +87,35 @@ function findField(name) {
 	return null;
 }
 
+function clearFields() {
+	for (var s in formFields) {
+		for (var g in formFields[s]) {
+			for(var f in formFields[s][g]) {
+				var field = formFields[s][g][f];
+				field.$node.val("");
+			}
+		}
+	}
+}
+
 function toggleReqMessage(fieldName, show) {
 	var field = findField(fieldName);
 	field && (show ? field.$requiredEl.show() : field.$requiredEl.hide());
 }
 
 function createMerchant() {
+	function getSuccessMessage(json) {
+		var successMsg = "Merchant queued for creation!"
+		successMsg += "\nId: " + json.merchantAccount.id;
+		successMsg += "\nStatus: " + json.merchantAccount.status;
+				
+		successMsg += "\n";
+		successMsg += "\nMaster Merchant Id: " + json.masterMerchantAccount.id;
+		successMsg += "\nMaster Merchant Status: " + json.masterMerchantAccount.status;
+		
+		return successMsg;
+	}
+
 	jQuery.ajax({
 		type: "POST",
 		url: "index.php?option=com_ajax&module=btp_onboarding&method=create&format=json",
@@ -100,10 +125,10 @@ function createMerchant() {
 				var json = JSON.parse(response);
 			
 				if (json && json.success) {
-					alert("Merchant queued for creation");
-					console.log("Merchant queued for creation");
-					console.log(json);
-					// TODO: Clear validation errors + (clear fields?)
+					var successMsg = getSuccessMessage(json);
+					alert(successMsg); // Alert user
+					console.log(successMsg); // Log
+					clearFields(); // Update UI
 				} else {
 					var errorObj = json.message;
 				

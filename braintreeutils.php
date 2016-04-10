@@ -20,7 +20,7 @@
 			$invidualParams = [
 				'firstName' => $params->get('firstname'),
 				'lastName' => $params->get('lastname'),
-				'email' => $params->get('email'),
+				'email' => 'notfunding@blueladders.com', //$params->get('email'),
 				'phone' => $params->get('phone'),
 				'dateOfBirth' => $params->get('dob'),
 				'address' => [
@@ -46,7 +46,7 @@
 			$fundParams = [
 				'descriptor' => $params->get('fundname'),
 				'destination' => Braintree_MerchantAccount::FUNDING_DESTINATION_BANK,
-				'email' => $params->get('fundemail'),
+				'email' => 'funding@blueladders.com', // $params->get('fundemail'),
 				'mobilePhone' => $params->get('fundphone'),
 				'accountNumber' => $params->get('account'),
 				'routingNumber' => $params->get('routing')

@@ -60,6 +60,32 @@
 			return $validationErrors;
 		}
 		
+		private static function getMerchantJson($merchantAccount) {
+			$id = $merchantAccount != null ? $merchantAccount->id : "Unknown";
+			$status = $merchantAccount != null ? $merchantAccount->status : "Unknown";
+			
+			$json = "{";
+			$json .= "\"status\" : \"" . $status . "\"";
+			$json .= ", \"id\" : \"" . $id . "\"";
+			$json .= " }";
+			
+			return $json;
+		}
+		
+		private static function getBtpErrorsJson($errors) {
+			$prepend = "";
+			$deep = $errors->deepAll();
+			
+			$json = "[";
+			foreach($deep as $err) {
+				$json .= $prepend . "\"" . $err->__get("message") . "\"";
+				$prepend = ", ";
+			}
+			$json .= "]";
+			
+			return $json;
+		}
+		
         // Default method is getAjax
         // Ajax methods must end in Ajax
         public static function createAjax($params) {
@@ -70,23 +96,22 @@
 			$validationErrors = self::getValidationErrors($postParams);
 			$json = "{ \"success\": ";
 			
-			// Validation errors?
+			// Validation errors check
 			if (count($validationErrors) == 0) {
 				$result = static::addMerchant($postParams);
 				$json .= ($result->success ? "true" :"false");
 				
-				if (!$result->success) {
-					$json .= ", \"message\" : { \"btpErrors\" : [";
-					
-					$errors = $result->errors->deepAll();
-					$prepend = "";
-					
-					foreach($errors as $err) {
-						$json .= $prepend . "\"" . $err->__get("message") . "\"";
-						$prepend = ", ";
-					}
-					
-					$json .= "] }";
+				// Success
+				if ($result->success) {
+					$merchant = $result->merchantAccount;
+					$master = $merchant != null ? $merchant->masterMerchantAccount : null;
+					$json .= ", \"merchantAccount\": " . static::getMerchantJson($merchant);
+					$json .= ", \"masterMerchantAccount\": " . static::getMerchantJson($master);
+				} else {
+					// Failure
+					$json .= ", \"message\" : { ";
+					$json .= "\"btpErrors\" : " . static::getBtpErrorsJson($result->errors);
+					$json .= "}";
 				}
 				
 				$json .= "}";
@@ -97,7 +122,6 @@
 				$json .= "false";
 				$json .= ", \"message\" : { \"validationErrors\" : \"" . implode(";", $validationErrors) . "\"}}";
 				echo $json;
-				// echo new JResponseJson(null, JText::_("{ \"validationErrors\" : " .  . "}"), true);
 			}
 			
 			//close the $app
