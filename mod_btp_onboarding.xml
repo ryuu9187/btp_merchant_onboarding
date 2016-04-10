@@ -25,7 +25,7 @@
                     <option value="development">Development</option>
                     <option value="production">Production</option>
                 </field>
-                <field name="master_merchant_id" type="text" size="200" label="Master Merchant ID" description=""></field>
+                <field name="master_merchant_id" type="text" size="200" label="Merchant ID" description=""></field>
                 <field name="public_key" type="text" size="200" label="Public Key" description=""></field>
                 <field name="private_key" type="text" size="200" label="Private Key" description=""></field>
             </fieldset>
