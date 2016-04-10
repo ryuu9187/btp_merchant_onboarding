@@ -67,14 +67,36 @@
 			
 			// Validate request
 			$validationErrors = self::getValidationErrors($postParams);
+			$json = "{ \"success\": ";
 			
 			// Validation errors?
 			if (count($validationErrors) == 0) {
-				echo json_encode(static::addMerchant($postParams));
+				$result = static::addMerchant($postParams);
+				$json .= ($result->success ? "true" :"false");
+				
+				if (!$result->success) {
+					$json .= ", \"message\" : { \"btpErrors\" : [";
+					
+					$errors = $result->errors->deepAll();
+					$prepend = "";
+					
+					foreach($errors as $err) {
+						$json .= $prepend . "\"" . $err->__get("message") . "\"";
+						$prepend = ", ";
+					}
+					
+					$json .= "] }";
+				}
+				
+				$json .= "}";
+				
+				echo $json;
 			} else {
 				// Return error message
-				echo new JResponseJson(null,
-					JText::_("{ \"validationErrors\" : \"" . implode(";", $validationErrors) . "\"}"), true);
+				$json .= "false";
+				$json .= ", \"message\" : { \"validationErrors\" : \"" . implode(";", $validationErrors) . "\"}}";
+				echo $json;
+				// echo new JResponseJson(null, JText::_("{ \"validationErrors\" : " .  . "}"), true);
 			}
 			
 			//close the $app

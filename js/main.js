@@ -104,13 +104,17 @@ function createMerchant() {
 					console.log(json);
 					// TODO: Clear validation errors + (clear fields?)
 				} else {
-					var errorObj = JSON.parse(json.message);
+					var errorObj = json.message;
 				
 					if (errorObj.validationErrors) {
 						var reqFields = errorObj.validationErrors.split(";");
 						for (var f in reqFields) {
 							reqFields[f] && toggleReqMessage(reqFields[f], true);
 						}
+					} else if (errorObj.btpErrors) {
+						var errorMsg = errorObj.btpErrors.join("\n");
+						console.error(errorMsg);
+						alert("Create Merchant failed for the following reasons:\n\n" + errorMsg);
 					} else {
 						var errorMsg = "An unknown error occurred." + errorObj;
 						console.error(errorMsg);
