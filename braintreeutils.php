@@ -68,6 +68,10 @@
 			}
 		}
 		
+		public static function findMerchant($params) {
+			return Braintree_MerchantAccount::find(static::unsanitize($params->get('id')));
+		}
+		
 		private static function unsanitize($data) {
 		
 			if ($data != null) {
@@ -81,6 +85,7 @@
 				$data = str_replace("__EQUALS_SYMBOL__", "=", $data);
 				$data = str_replace("__ASTERISK_SYMBOL__", "*", $data);
 				$data = str_replace("__BANG_SYMBOL__", "!", $data);
+				$data = str_replace("__SPACE_SYMBOL__", " ", $data);
 			}
 			
 			return $data;

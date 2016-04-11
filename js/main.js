@@ -34,7 +34,7 @@ function fieldMeta(value, name, placeholderText) {
 		value : value,
 		$node : null,
 		phText : placeholderText,
-		$requiredEl : jQuery("<div style='display:none;width:50%;padding:2px 10px;' class='alert alert-error'>" + name + " is required</div>")
+		$requiredEl : jQuery("<div style='display:none;width:50%;padding:2px 10px;' class='alert alert-error'>This field is required</div>")
 	};
 }
 
@@ -119,6 +119,39 @@ function toggleReqMessage(fieldName, show) {
 	field && (show ? field.$requiredEl.show() : field.$requiredEl.hide());
 }
 
+function sanitize(data) {
+	return data
+		.replace(/%40/g, "__AT_SYMBOL__")
+		.replace(/%23/g, "__NUMBER_SYMBOL__")
+		.replace(/%24/g, "__DOLLAR_SYMBOL__")
+		.replace(/%25/g, "__PERCENT_SYMBOL__")
+		.replace(/%5E/g, "__CARROT_SYMBOL__")
+		.replace(/%26/g, "__AMPERSAND_SYMBOL__")
+		.replace(/%2B/g, "__PLUS_SYMBOL__")
+		.replace(/%3D/g, "__EQUALS_SYMBOL__")
+		.replace(/\*/g, "__ASTERISK_SYMBOL__")
+		.replace(/!/g, "__BANG_SYMBOL__")
+		.replace(/\+/g, "__SPACE_SYMBOL__");
+}
+
+function processErrors(errorObj) {
+	if (errorObj.validationErrors) {
+		var reqFields = errorObj.validationErrors.split(";");
+		for (var f in reqFields) {
+			reqFields[f] && toggleReqMessage(reqFields[f], true);
+		}
+	} else if (errorObj.btpErrors) {
+		var errorMsg = errorObj.btpErrors.join("\n");
+		console.error(errorMsg);
+		alert("Create Merchant failed for the following reasons:\n\n" + errorMsg);
+	} else {
+		var errorMsg = "An unknown error occurred." + errorObj;
+		console.error(errorMsg);
+		alert(errorMsg);
+	}
+}
+
+// TODO: Genericize messages
 function createMerchant() {
 	function getSuccessMessage(json) {
 		var successMsg = "Merchant queued for creation!"
@@ -132,30 +165,16 @@ function createMerchant() {
 		return successMsg;
 	}
 
-	function sanitize(data) {
-		return data
-			.replace(/%40/g, "__AT_SYMBOL__")
-			.replace(/%23/g, "__NUMBER_SYMBOL__")
-			.replace(/%24/g, "__DOLLAR_SYMBOL__")
-			.replace(/%25/g, "__PERCENT_SYMBOL__")
-			.replace(/%5E/g, "__CARROT_SYMBOL__")
-			.replace(/%26/g, "__AMPERSAND_SYMBOL__")
-			.replace(/%2B/g, "__PLUS_SYMBOL__")
-			.replace(/%3D/g, "__EQUALS_SYMBOL__")
-			.replace(/\*/g, "__ASTERISK_SYMBOL__")
-			.replace(/!/g, "__BANG_SYMBOL__");
-	}
-
 	// Clear form validation errors
 	clearValidationErrors();
 
-	var formData = $form.serialize();
+	var formData = sanitize($form.serialize());
 	
 	// Send request
 	jQuery.ajax({
 		type: "POST",
 		url: "index.php?option=com_ajax&module=btp_onboarding&method=create&format=json",
-		data: sanitize(formData),
+		data: formData,
 		success: function(response){
 			try {
 				var json = JSON.parse(response);
@@ -166,22 +185,67 @@ function createMerchant() {
 					console.log(successMsg); // Log
 					clearFields(); // Update UI
 				} else {
-					var errorObj = json.message;
-				
-					if (errorObj.validationErrors) {
-						var reqFields = errorObj.validationErrors.split(";");
-						for (var f in reqFields) {
-							reqFields[f] && toggleReqMessage(reqFields[f], true);
-						}
-					} else if (errorObj.btpErrors) {
-						var errorMsg = errorObj.btpErrors.join("\n");
-						console.error(errorMsg);
-						alert("Create Merchant failed for the following reasons:\n\n" + errorMsg);
-					} else {
-						var errorMsg = "An unknown error occurred." + errorObj;
-						console.error(errorMsg);
-						alert(errorMsg);
+					processErrors(json.message);
+				}
+			} catch (ex) {
+				var errorMsg = response && response.message || ("An unknown error occurred: " + response);
+				console.error(errorMsg);
+				alert(errorMsg);
+			}
+		}
+	});
+}
+
+function searchMerchant() {
+	function getSuccessMessage(json) {
+		var successMsg = "Merchant found!";
+		successMsg += "\n\nNote: Only the last 4 digits of the account number will be displayed.";
+		
+		return successMsg;
+	}
+	
+	function fillForm(json) {
+		for (var i = 0; i < formFields.length; i++) {
+			for (var group in formFields[i]) {
+				var formGroup = formFields[i][group];
+				var jsonData = json[group];
+				for (var prop in jsonData) {
+					var field = findField(prop);
+					if (field && field.$node) {
+						field.$node.val(jsonData[prop]);
 					}
+				}
+			}
+		}
+	}
+	
+	// Clear form validation errors
+	clearValidationErrors();
+
+	// Get data
+	var formData = sanitize($form.serialize());
+	
+	// Send request
+	jQuery.ajax({
+		type: "POST",
+		url: "index.php?option=com_ajax&module=btp_onboarding&method=find&format=json",
+		data: formData,
+		success: function(response){
+			try {
+				var json = JSON.parse(response);
+			
+				if (json && json.success) {
+					// Update UI
+					clearFields();
+					fillForm(json);
+				
+					// Message user
+					var successMsg = getSuccessMessage(json);
+					alert(successMsg);
+					console.log(successMsg);
+				
+				} else {
+					processErrors(json.message);
 				}
 			} catch (ex) {
 				var errorMsg = response && response.message || ("An unknown error occurred: " + response);

@@ -17,7 +17,8 @@
 		}
 		
 		// Array containg the expected form parameters and if they're required
-		private static $formParams = array(
+		// For the create method
+		private static $createParams = array(
 			"firstname" => true,
 			"lastname" => true,
 			"email" => true,
@@ -43,10 +44,12 @@
 			"id" => false
 		);
 		
-		private static function getValidationErrors($reqParams) {
+		private static $findParams = array("id" => true);
+		
+		private static function getValidationErrors($formParams, $reqParams) {
 			$validationErrors = array();
 			
-			foreach(static::$formParams as $key => $value) {
+			foreach($formParams as $key => $value) {
 				$argument = trim($reqParams->getString($key));
 				
 				if ($argument != '') {
@@ -93,7 +96,7 @@
 			$postParams = $app->input;
 			
 			// Validate request
-			$validationErrors = self::getValidationErrors($postParams);
+			$validationErrors = static::getValidationErrors(static::$createParams, $postParams);
 			$json = "{ \"success\": ";
 			
 			// Validation errors check
@@ -127,6 +130,84 @@
 			//close the $app
 			$app->close();
         }
+		
+		// TODO: Genericize the json response building
+		public static function findAjax($params) {
+			$app = JFactory::getApplication();
+			$postParams = $app->input;
+			
+			$validationErrors = static::getValidationErrors(static::$findParams, $postParams);
+			$json = "{ \"success\": ";
+			
+			// Validation errors check
+			if (count($validationErrors) == 0) {
+				$json .= "true";
+				
+				$result = static::searchMerchant($postParams);
+				
+				// Individual
+				$indDetails = $result->individualDetails;
+				$address = $indDetails->addressDetails;
+				$json .= ", \"Individual\": {";
+					$json .= "\"firstname\" : \"" . $indDetails->firstName . "\"";
+					$json .= ",\"lastname\" : \"" .  $indDetails->lastName . "\"";
+					$json .= ",\"email\" : \"" . $indDetails->email . "\"";
+					$json .= ",\"dob\" : \"" . $indDetails->dateOfBirth . "\"";
+					$json .= ",\"phone\" : \"" . $indDetails->phone . "\"";
+					$json .= ",\"street\" : \"" . $address->streetAddress . "\"";
+					$json .= ",\"city\" : \"" . $address->locality . "\"";
+					$json .= ",\"state\" : \"" . $address->region . "\"";
+					$json .= ",\"zip\" : \"" . $address->postalCode . "\"";
+				$json .= "}";
+				
+				// Business
+				$bizDetails = $result->businessDetails;
+				$address = $bizDetails->addressDetails;
+				$json .= ", \"Business\": {";
+					$json .= "\"bizname\" : \"" . $bizDetails->legalName . "\"";
+					$json .= ",\"dba\" : \"" .  $bizDetails->dbaName . "\"";
+					$json .= ",\"tax\" : \"" . $bizDetails->taxId . "\"";
+					$json .= ",\"bizstreet\" : \"" . $address->streetAddress . "\"";
+					$json .= ",\"bizcity\" : \"" . $address->locality . "\"";
+					$json .= ",\"bizstate\" : \"" . $address->region . "\"";
+					$json .= ",\"bizzip\" : \"" . $address->postalCode . "\"";
+				$json .= "}";
+				
+				// Funding
+				$funDetails = $result->fundingDetails;
+				$json .= ", \"Funding\": {";
+					$json .= "\"fundname\" : \"" . $funDetails->descriptor . "\"";
+					$json .= ",\"fundemail\" : \"" .  $funDetails->email . "\"";
+					$json .= ",\"fundphone\" : \"" . $funDetails->mobilePhone . "\"";
+					$json .= ",\"account\" : \"" . $funDetails->accountNumberLast4 . "\"";
+					$json .= ",\"routing\" : \"" . $funDetails->routingNumber . "\"";
+				$json .= "}";
+				
+				// Merchant
+				$masterMerchant = $result->masterMerchantAccount;
+				
+				$json .= ", \"Merchant\": {";
+					$json .= "\"masterId\" : \"" . $masterMerchant->id . "\"";
+					$json .= ",\"id\" : \"" . $result->id . "\"";
+				$json .= "}";
+				
+				
+				$json .= "}";
+				echo $json;
+			} else {
+				// Return error message
+				$json .= "false";
+				$json .= ", \"message\" : { \"validationErrors\" : \"" . implode(";", $validationErrors) . "\"}}";
+				echo $json;
+			}
+			
+			$app->close();
+		}
+		
+		private static function searchMerchant($params) {
+			static::setupBrainTree();
+			return BrainTreeUtils::findMerchant($params);
+		}
 		
 		private static function addMerchant($params) {
 			static::setupBrainTree();
