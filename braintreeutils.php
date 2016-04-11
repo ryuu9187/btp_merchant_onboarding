@@ -18,38 +18,38 @@
 
 		public static function addMerchant($params) {
 			$invidualParams = [
-				'firstName' => $params->get('firstname'),
-				'lastName' => $params->get('lastname'),
-				'email' => 'notfunding@blueladders.com', //$params->get('email'),
-				'phone' => $params->get('phone'),
-				'dateOfBirth' => $params->get('dob'),
+				'firstName' => static::unsanitize($params->get('firstname')),
+				'lastName' => static::unsanitize($params->get('lastname')),
+				'email' => static::unsanitize($params->get('email')),
+				'phone' => static::unsanitize($params->get('phone')),
+				'dateOfBirth' => static::unsanitize($params->get('dob')),
 				'address' => [
-					'streetAddress' => $params->get('street'),
-					'locality' => $params->get('city'),
-					'region' => $params->get('state'),
-					'postalCode' => $params->get('zip')
+					'streetAddress' => static::unsanitize($params->get('street')),
+					'locality' => static::unsanitize($params->get('city')),
+					'region' => static::unsanitize($params->get('state')),
+					'postalCode' => static::unsanitize($params->get('zip'))
 				]
 			];
 			
 			$bizParams = [
-					'legalName' => $params->get('bizname'),
-					'dbaName' => $params->get('dba'),
-					'taxId' => $params->get('tax'),
+					'legalName' => static::unsanitize($params->get('bizname')),
+					'dbaName' => static::unsanitize($params->get('dba')),
+					'taxId' => static::unsanitize($params->get('tax')),
 					'address' => [
-						'streetAddress' => $params->get('bizstreet'),
-						'locality' => $params->get('bizcity'),
-						'region' => $params->get('bizstate'),
-						'postalCode' => $params->get('bizzip')
+						'streetAddress' => static::unsanitize($params->get('bizstreet')),
+						'locality' => static::unsanitize($params->get('bizcity')),
+						'region' => static::unsanitize($params->get('bizstate')),
+						'postalCode' => static::unsanitize($params->get('bizzip'))
 					]
 			];
 			
 			$fundParams = [
-				'descriptor' => $params->get('fundname'),
+				'descriptor' => static::unsanitize($params->get('fundname')),
 				'destination' => Braintree_MerchantAccount::FUNDING_DESTINATION_BANK,
-				'email' => 'funding@blueladders.com', // $params->get('fundemail'),
-				'mobilePhone' => $params->get('fundphone'),
-				'accountNumber' => $params->get('account'),
-				'routingNumber' => $params->get('routing')
+				'email' => static::unsanitize($params->get('fundemail')),
+				'mobilePhone' => static::unsanitize($params->get('fundphone')),
+				'accountNumber' => static::unsanitize($params->get('account')),
+				'routingNumber' => static::unsanitize($params->get('routing'))
 			];
   
 			$merchantAccountParams = [
@@ -57,8 +57,8 @@
 				'business' => $bizParams,
 				'funding' => $fundParams,
 				'tosAccepted' => true,
-				'masterMerchantAccountId' => $params->get('masterId'),
-				'id' => $params->get('id')
+				'masterMerchantAccountId' => static::unsanitize($params->get('masterId')),
+				'id' => static::unsanitize($params->get('id'))
 			];
 			
 			try {
@@ -67,6 +67,25 @@
 				return "An error occured";
 			}
 		}
+		
+		private static function unsanitize($data) {
+		
+			if ($data != null) {
+				$data = str_replace("__AT_SYMBOL__", "@", $data);
+				$data = str_replace("__NUMBER_SYMBOL__", "#", $data);
+				$data = str_replace("__DOLLAR_SYMBOL__", "$", $data);
+				$data = str_replace("__PERCENT_SYMBOL__", "%", $data);
+				$data = str_replace("__CARROT_SYMBOL__", "^", $data);
+				$data = str_replace("__AMPERSAND_SYMBOL__", "&", $data);
+				$data = str_replace("__PLUS_SYMBOL__", "+", $data);
+				$data = str_replace("__EQUALS_SYMBOL__", "=", $data);
+				$data = str_replace("__ASTERISK_SYMBOL__", "*", $data);
+				$data = str_replace("__BANG_SYMBOL__", "!", $data);
+			}
+			
+			return $data;
+		}
+		
 	}
 
 ?>
