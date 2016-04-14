@@ -46,6 +46,8 @@
 		
 		private static $findParams = array("id" => true);
 		
+		private static $updateParams = array("id" => true);
+		
 		private static function getValidationErrors($formParams, $reqParams) {
 			$validationErrors = array();
 			
@@ -131,6 +133,38 @@
 			$app->close();
         }
 		
+		public static function updateAjax($params) {
+			$app = JFactory::getApplication();
+			$postParams = $app->input;
+			
+			$validationErrors = static::getValidationErrors(static::$updateParams, $postParams);
+			$json = "{ \"success\": ";
+			
+			// Validation errors check
+			if (count($validationErrors) == 0) {
+				$result = static::updateMerchant($postParams);
+				$json .= ($result->success ? "true" : "false");
+				
+				// Failure
+				if (!$result->success) {
+					$json .= ", \"message\" : { ";
+					$json .= "\"btpErrors\" : " . static::getBtpErrorsJson($result->errors);
+					$json .= "}";
+				}
+				
+				$json .= "}";
+				
+				echo $json;
+			} else {
+				// Return error message
+				$json .= "false";
+				$json .= ", \"message\" : { \"validationErrors\" : \"" . implode(";", $validationErrors) . "\"}}";
+				echo $json;
+			}
+			
+			$app->close();
+		}
+		
 		// TODO: Genericize the json response building
 		public static function findAjax($params) {
 			$app = JFactory::getApplication();
@@ -212,6 +246,11 @@
 		private static function addMerchant($params) {
 			static::setupBrainTree();
 			return BrainTreeUtils::addMerchant($params);
+		}
+		
+		private static function updateMerchant($params) {
+			static::setupBrainTree();
+			return BrainTreeUtils::updateMerchant($params);
 		}
 		
 	}

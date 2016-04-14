@@ -7,7 +7,7 @@ var formFields = [
 		fieldMeta("dob", "Date of Birth", "YYYY-MM-DD"),
 		fieldMeta("street", "Street Address"),
 		fieldMeta("city", "City"),
-		fieldMeta("state", "State"),
+		fieldMeta("state", "State", "abbreviation"),
 		fieldMeta("zip", "Postal Code")]},
 	{ "Business" : [
 		fieldMeta("bizname", "Name"),
@@ -15,7 +15,7 @@ var formFields = [
 		fieldMeta("tax", "Tax ID", "XX-XXXXXXX"),
 		fieldMeta("bizstreet", "Street Address"),
 		fieldMeta("bizcity", "City"),
-		fieldMeta("bizstate", "State"),
+		fieldMeta("bizstate", "State", "abbreviation"),
 		fieldMeta("bizzip", "Postal Code")]},
 	{ "Funding" : [
 		fieldMeta("fundname", "Name of Account"),
@@ -24,7 +24,7 @@ var formFields = [
 		fieldMeta("account", "Account #"),
 		fieldMeta("routing", "Routing #")]},
 	{ "Merchant" : [
-		fieldMeta("masterId", "Master Merchant ID*"),
+		fieldMeta("masterId", "Master Merchant ID"),
 		fieldMeta("id", "Merchant ID (create/search/delete)")]}
 ];
 
@@ -194,6 +194,44 @@ function createMerchant() {
 			}
 		}
 	});
+}
+
+function updateMerchant() {
+
+	// Clear validation errors
+	clearValidationErrors();
+	
+	var formData = sanitize($form.serialize());
+	
+	// Send request
+	jQuery.ajax({
+		type: "POST",
+		url: "index.php?option=com_ajax&module=btp_onboarding&method=update&format=json",
+		data: formData,
+		success: function(response) {
+			try {
+				var json = JSON.parse(response);
+			
+				if (json && json.success) {
+					// Update UI
+					clearFields();
+			
+					// Message user
+					var successMsg = "Merchant successfully updated.";
+					alert(successMsg);
+					console.log(successMsg);
+				
+				} else {
+					processErrors(json.message);
+				}
+			} catch (ex) {
+				var errorMsg = response && response.message || ("An unknown error occurred: " + response);
+				console.error(errorMsg);
+				alert(errorMsg);
+			}
+		}
+	});
+	
 }
 
 function searchMerchant() {
