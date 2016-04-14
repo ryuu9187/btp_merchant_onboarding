@@ -238,6 +238,7 @@ function searchMerchant() {
 	function getSuccessMessage(json) {
 		var successMsg = "Merchant found!";
 		successMsg += "\n\nNote: Only the last 4 digits of the account number will be displayed.";
+		successMsg += "\nWarning: Any modified fields will be updated when 'Update' is clicked.";
 		
 		return successMsg;
 	}
