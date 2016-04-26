@@ -28,7 +28,7 @@
 			"state" => true,
 			"city" => true,
 			"zip" => true,
-			"bizname" => true,
+			"bizname" => false,
 			"dba" => false,
 			"tax" => false,
 			"bizstreet" => true,
